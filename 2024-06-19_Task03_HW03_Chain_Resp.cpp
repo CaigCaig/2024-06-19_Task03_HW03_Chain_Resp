@@ -12,19 +12,17 @@ typedef enum
     UNKNOWN
 } Type;
 
-/*
 class LogMessage {
 public:
     Type type() const;
     const std::string& message() const;
 };
-*/
 
 class BaseHandler
 {
 public:
     virtual void setNextHandler(BaseHandler* handler) = 0;
-    virtual void handlerRequest(Type type, string request) = 0;
+    virtual void handlerRequest(const LogMessage& message) = 0;
     virtual void setPath(const string& path_) = 0;
 };
 
@@ -38,15 +36,15 @@ public:
     {
         nextHandler = handler;
     }
-    void handlerRequest(Type type, string request) override
+    void handlerRequest(const LogMessage& message) override
     {
-        if (type == WARNING)
+        if (message.type == WARNING)
         {
-            cout << request << endl;
+            cout << message.message << endl;
         }
         else if (nextHandler != nullptr)
         {
-            nextHandler->handlerRequest(type, request);
+            nextHandler->handlerRequest(message);
         }
         else
         {
@@ -67,7 +65,7 @@ public:
     {
         nextHandler = handler;
     }
-    void handlerRequest(Type type, string request) override
+    void handlerRequest(const LogMessage& message) override
     {
         if (type == ERROR)
         {
@@ -81,7 +79,7 @@ public:
         }
         else if (nextHandler != nullptr)
         {
-            nextHandler->handlerRequest(type, request);
+            nextHandler->handlerRequest(message);
         }
         else
         {
@@ -104,7 +102,7 @@ public:
     {
         nextHandler = handler;
     }
-    void handlerRequest(Type type, string request) override
+    void handlerRequest(const LogMessage& message) override
     {
         try
         {
@@ -114,7 +112,7 @@ public:
             }
             else if (nextHandler != nullptr)
             {
-                nextHandler->handlerRequest(type, request);
+                nextHandler->handlerRequest(message);
             }
             else
             {
@@ -139,7 +137,7 @@ public:
     {
         nextHandler = handler;
     }
-    void handlerRequest(Type type, string request) override
+    void handlerRequest(const LogMessage& message) override
     {
         try
         {
@@ -150,7 +148,7 @@ public:
             }
             else if (nextHandler != nullptr)
             {
-                nextHandler->handlerRequest(type, request);
+                nextHandler->handlerRequest(message);
             }
             else
             {
@@ -167,7 +165,7 @@ public:
 
 int main()
 {
-    //LogMessage message;
+    LogMessage message;
     BaseHandler* warning = new WarningHandler();
     BaseHandler* error = new ErrorHandler();
     BaseHandler* fatal_error = new FatalErrorHandler();
@@ -179,6 +177,8 @@ int main()
     error->setNextHandler(warning);
     warning->setNextHandler(unknown);
 
+    message.message = "WARNING1!"
+    fatal_error->handlerRequest(message);
     fatal_error->handlerRequest(WARNING, "WARNING1!");
     fatal_error->handlerRequest(ERROR, "ERROR1!");
     fatal_error->handlerRequest(FATAL_ERROR, "FATAL_ERROR1!");

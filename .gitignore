@@ -3,4 +3,5 @@ x86
 Debug
 Release
 .vs
+.vcxproj
 out
